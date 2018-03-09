@@ -51,7 +51,7 @@ void KalmanFilter::Update(const VectorXd &z) {
   x_ = x_ + (K * y);
   long x_size = x_.size();
   MatrixXd I = MatrixXd::Identity(x_size,x_size);
-  P_ = (I - K * H_) * P_;
+  P_ -= K * H_ * P_;
 
 }
 
@@ -93,13 +93,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   VectorXd z_pred = ExchangeFromCartesianToPolar(x_);
   VectorXd y = z - z_pred;
 
-  while(y(1) > M_PI) {
-    y(1) -= PI2;
-  } 
-
-  while(y(1) < -M_PI) {
-    y(1) += PI2;
-  }
+  y(1) = atan2(sin(y(1)),cos(y(1)));
 
   MatrixXd Ht = H_.transpose();
   MatrixXd PHt = P_ * Ht;
